@@ -1,3 +1,4 @@
+import re
 import struct
 import threading
 import time
@@ -72,7 +73,7 @@ pjlHeader, pjlHeaderLength = read(firmware, b"FWUPDATE!\x0d\x0a", True)
 
 data = firmware[pjlHeaderLength:]
 
-COMPRESSION_METHOD = 0
+COMPRESSION_METHOD = CompressionMethod.UNENCODED
 RASTER_WIDTH = 0
 
 print(f"Starting to unpack {path}")
@@ -214,7 +215,10 @@ else:
     with open("firstStage.bin", "rb") as firstStage:
         firstStageBuffer.extend(firstStage.read())
 
-asciiSrecEnd = b"P02628000"
+asciiSrecEndMatch = re.search(rb'([P])([A-F0-9a-f]{8})',firstStageBuffer) # From https://web.archive.org/web/20240526203007/https://www.jsof-tech.com/unpacking-hp-firmware-updates-part-2/
+
+asciiSrecEnd = asciiSrecEndMatch.group(0)
+print(asciiSrecEnd)
 # asciiSrecEnd = b"F0047ACE9"
 # asciiSrecEnd = b"F0041CCE9"
 
